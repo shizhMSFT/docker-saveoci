@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/shizhMSFT/docker-save-oci/internal/docker"
+	"github.com/shizhMSFT/docker-saveoci/internal/docker"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ var pluginMetadata = docker.PluginMetadata{
 	Vendor:           "Shiwei Zhang",
 	Version:          "0.1.0",
 	ShortDescription: "Save one or more images to a tar archive in the OCI layout",
-	URL:              "https://github.com/shizhMSFT/docker-save-oci",
+	URL:              "https://github.com/shizhMSFT/docker-saveoci",
 	Experimental:     true,
 }
 

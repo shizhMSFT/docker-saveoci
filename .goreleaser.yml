@@ -1,8 +1,8 @@
 # Check the documentation at https://goreleaser.com for more options
 builds:
-  - id: docker-save-oci
-    main: ./cmd/docker-save-oci
-    binary: docker-save-oci
+  - id: docker-saveoci
+    main: ./cmd/docker-saveoci
+    binary: docker-saveoci
     env:
       - CGO_ENABLED=0
     goos:

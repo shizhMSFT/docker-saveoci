@@ -1,4 +1,4 @@
-DOCKER_PLUGINS = docker-save-oci
+DOCKER_PLUGINS = docker-saveoci
 GO_BUILD_FLAGS =
 
 .PHONY: help

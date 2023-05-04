@@ -1,4 +1,4 @@
-module github.com/shizhMSFT/docker-save-oci
+module github.com/shizhMSFT/docker-saveoci
 
 go 1.20
 

@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/shizhMSFT/docker-save-oci/internal/convert"
+	"github.com/shizhMSFT/docker-saveoci/internal/convert"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ func saveOCICommand(opts *saveOCIOpts) *cobra.Command {
 		opts = &saveOCIOpts{}
 	}
 	cmd := &cobra.Command{
-		Use:   "save-oci [OPTIONS] IMAGE [IMAGE...]",
+		Use:   "saveoci [OPTIONS] IMAGE [IMAGE...]",
 		Short: "Save one or more images to a tar archive in the OCI layout",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -33,7 +33,7 @@ func saveOCICommand(opts *saveOCIOpts) *cobra.Command {
 }
 
 func runSaveOCI(ctx context.Context, opts *saveOCIOpts) error {
-	cmd := exec.CommandContext(ctx, "docker", append([]string{"save-oci"}, opts.images...)...)
+	cmd := exec.CommandContext(ctx, "docker", append([]string{"save"}, opts.images...)...)
 	cmd.Stderr = os.Stderr
 	rc, err := cmd.StdoutPipe()
 	if err != nil {

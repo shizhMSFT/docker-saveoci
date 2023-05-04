@@ -14,7 +14,7 @@ func main() {
 	defer cancel()
 
 	cmd := &cobra.Command{
-		Use:          "docker-save-oci",
+		Use:          "docker-saveoci",
 		Short:        "A docker plugin to save one or more images to a tar archive in the OCI layout",
 		SilenceUsage: true,
 	}

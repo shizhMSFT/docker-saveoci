@@ -14,7 +14,7 @@ import (
 	"github.com/opencontainers/go-digest"
 	"github.com/opencontainers/image-spec/specs-go"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
-	"github.com/shizhMSFT/docker-save-oci/internal/tarutil"
+	"github.com/shizhMSFT/docker-saveoci/internal/tarutil"
 )
 
 // DockerToOCI converts a tarball in docker save format to OCI layout format.
