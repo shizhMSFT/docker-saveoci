@@ -20,6 +20,7 @@ func main() {
 	}
 	cmd.AddCommand(
 		metadataCommand(),
+		saveOCICommand(nil),
 	)
 	if err := cmd.ExecuteContext(ctx); err != nil {
 		os.Exit(1)
