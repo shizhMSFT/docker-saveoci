@@ -46,6 +46,13 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 				Digest:    digest,
 				Size:      header.Size,
 			}
+			header := &tar.Header{
+				Name: ociBlobPath(digest),
+				Size: header.Size,
+			}
+			if err := tarutil.Copy(ws, header.Name, header.Size, tr); err != nil {
+				return err
+			}
 		case strings.HasSuffix(header.Name, "/layer.tar"):
 			digester := digest.SHA256.Digester()
 			ew, err := tarutil.NewEntryWriter(ws)
@@ -53,15 +60,14 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 				return err
 			}
 			gw := gzip.NewWriter(io.MultiWriter(ew, digester.Hash()))
-			if _, err := io.Copy(gw, r); err != nil {
+			if _, err := io.Copy(gw, tr); err != nil {
 				return err
 			}
 			if err := gw.Close(); err != nil {
 				return err
 			}
 			digest := digester.Digest()
-			path := "blobs/sha256/" + digest.Encoded()
-			if err := ew.Commit(path); err != nil {
+			if err := ew.Commit(ociBlobPath(digest)); err != nil {
 				return err
 			}
 			descriptors[header.Name] = distribution.Descriptor{
@@ -81,7 +87,6 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 			SchemaVersion: 2, // historical value
 		},
 	}
-	tw := tar.NewWriter(ws)
 	for _, entry := range manifests {
 		// convert manifest
 		config := descriptors[entry.Config]
@@ -108,8 +113,7 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 		}
 
 		// write manifest
-		path := "blobs/sha256/" + desc.Digest.Encoded()
-		if err := tarutil.WriteFile(tw, path, payload); err != nil {
+		if err := tarutil.WriteFile(ws, ociBlobPath(desc.Digest), payload); err != nil {
 			return err
 		}
 
@@ -136,7 +140,7 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal index file: %w", err)
 	}
-	if err := tarutil.WriteFile(tw, "index.json", indexJSON); err != nil {
+	if err := tarutil.WriteFile(ws, "index.json", indexJSON); err != nil {
 		return err
 	}
 
@@ -148,9 +152,14 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 	if err != nil {
 		return fmt.Errorf("failed to marshal OCI layout file: %w", err)
 	}
-	if err := tarutil.WriteFile(tw, ocispec.ImageLayoutFile, layoutJSON); err != nil {
+	if err := tarutil.WriteFile(ws, ocispec.ImageLayoutFile, layoutJSON); err != nil {
 		return err
 	}
 
-	return tw.Close()
+	return tarutil.Close(ws)
+}
+
+// ociBlobPath returns the blob path for the OCI layout.
+func ociBlobPath(digest digest.Digest) string {
+	return "blobs/sha256/" + digest.Encoded()
 }

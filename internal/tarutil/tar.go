@@ -69,6 +69,9 @@ func (ew *EntryWriter) Commit(name string) error {
 	if len(headerBytes) != int(blockSize) {
 		return errors.New("invalid header size")
 	}
+	if _, err := ew.base.Seek(ew.pos, io.SeekStart); err != nil {
+		return err
+	}
 	if _, err := ew.base.Write(headerBytes); err != nil {
 		return err
 	}
@@ -79,7 +82,7 @@ func (ew *EntryWriter) Commit(name string) error {
 		return err
 	}
 	if paddingSize := blockPadding(ew.size); paddingSize > 0 {
-		if _, err := ew.base.Write(zeroBlock[:]); err != nil {
+		if _, err := ew.base.Write(zeroBlock[:paddingSize]); err != nil {
 			return err
 		}
 	}
@@ -92,15 +95,40 @@ func (ew *EntryWriter) Size() int64 {
 	return ew.size
 }
 
-// WriteFile writes a file to a tar archive.
-func WriteFile(tw *tar.Writer, name string, data []byte) error {
+// WriteFile writes a file to a tar archive as a single entry.
+func WriteFile(w io.Writer, name string, data []byte) error {
 	header := &tar.Header{
 		Name: name,
 		Size: int64(len(data)),
 	}
+	tw := tar.NewWriter(w)
 	if err := tw.WriteHeader(header); err != nil {
 		return err
 	}
-	_, err := tw.Write(data)
-	return err
+	if _, err := tw.Write(data); err != nil {
+		return err
+	}
+	return tw.Flush()
+}
+
+// Copy copies content to a tar archive as a single entry.
+func Copy(w io.Writer, name string, size int64, r io.Reader) error {
+	header := &tar.Header{
+		Name: name,
+		Size: size,
+	}
+	tw := tar.NewWriter(w)
+	if err := tw.WriteHeader(header); err != nil {
+		return err
+	}
+	if _, err := io.Copy(tw, r); err != nil {
+		return err
+	}
+	return tw.Flush()
+}
+
+// Close closes a tar file by writing an EOF mark.
+func Close(w io.Writer) error {
+	tw := tar.NewWriter(w)
+	return tw.Close()
 }
