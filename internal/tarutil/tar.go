@@ -59,6 +59,7 @@ func (ew *EntryWriter) Commit(name string) error {
 	header := &tar.Header{
 		Name: name,
 		Size: ew.size,
+		Mode: 0644,
 	}
 	headerBuf := bytes.NewBuffer(nil)
 	tw := tar.NewWriter(headerBuf)
@@ -100,6 +101,7 @@ func WriteFile(w io.Writer, name string, data []byte) error {
 	header := &tar.Header{
 		Name: name,
 		Size: int64(len(data)),
+		Mode: 0644,
 	}
 	tw := tar.NewWriter(w)
 	if err := tw.WriteHeader(header); err != nil {
@@ -116,6 +118,7 @@ func Copy(w io.Writer, name string, size int64, r io.Reader) error {
 	header := &tar.Header{
 		Name: name,
 		Size: size,
+		Mode: 0644,
 	}
 	tw := tar.NewWriter(w)
 	if err := tw.WriteHeader(header); err != nil {

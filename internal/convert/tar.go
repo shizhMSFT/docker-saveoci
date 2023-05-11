@@ -49,6 +49,7 @@ func DockerToOCI(r io.Reader, ws io.WriteSeeker) error {
 			header := &tar.Header{
 				Name: ociBlobPath(digest),
 				Size: header.Size,
+				Mode: header.Mode,
 			}
 			if err := tarutil.Copy(ws, header.Name, header.Size, tr); err != nil {
 				return err
